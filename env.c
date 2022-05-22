@@ -1,10 +1,18 @@
-#include "pacman.h"
+#include "env.h"
 
 
 #define NB_LIFE 5
 
 
-void pacman_maze_make(char* file_name){
+
+void alloc_maze(){
+     maze = malloc(rows * sizeof(char*));
+     for(int i=0; i<rows; i++) {
+         maze[i] = malloc(cols * sizeof(char*));
+     }
+}
+
+void make_maze(char* file_name){
      char c;
      char rows_s[3] ={'\0'};
      char cols_s[3] ={'\0'};
@@ -15,7 +23,7 @@ void pacman_maze_make(char* file_name){
      FILE* file = fopen(file_name, "r");
 
      if (file) {
-         /* lire la premiere ligne avant EOF */
+         // lire la premiere ligne avant EOF
          while( (c=getc(file)) != EOF) {
                if(c== '\n'){
                       break;
@@ -28,21 +36,18 @@ void pacman_maze_make(char* file_name){
                       cols_s[cols_i]= c;
                       cols_i++;
                }
-               printf("%c", c);
          }
      }
 
-     /* convertir le string en nombre */
-     int rows = atoi(rows_s);
-     int cols = atoi(cols_s);
+     // convertir le string en nombre
+    rows = atoi(rows_s);
+    cols = atoi(cols_s);
+    alloc_maze();
 
-     alloc_maze();
-     int gost = 0;
-
-     for (int i=0; i<rows; i++){
-         for (int j=0; j < cols; j++){
+    int gost = 0;
+    for (int i=0; i<rows; i++){
+        for (int j=0; j < cols; j++){
              c = getc(file);
-
              if (c=='\n'){
                  c = getc(file);
              } else if (c == 'p'){
@@ -55,9 +60,9 @@ void pacman_maze_make(char* file_name){
                gosts_start_pos[gost][1] = j;
                gosts_pos[gost][0] = i;
                gosts_pos[gost][1] = j;
+               gosts_last_case[gost] = ' ';
                gost++;
              }
-
              maze[i][j] = c;
          }
      }
@@ -65,61 +70,86 @@ void pacman_maze_make(char* file_name){
      fclose(file);
 }
 
+void maze_render(){
+     for (int i=0; i<rows; i++) {
+         for (int j=0; j< cols; j++){
+             printf("%c", maze[i][j]);
+         }
+         printf("\n");
+     }
+     printf("\n");
+}
 
 void move_gosts(){
     int dplct;
-    for (int g=0; g++; g<3){
+    for (int g=0; g<3; g++){
         if (rand()%5==0){
             dplct = rand()%4;
+            printf("r : %d\n", dplct);
         }
         else{
             int d_height = current_row - gosts_pos[g][0];
             int d_weight = current_col - gosts_pos[g][1];
             if (abs(d_height)> abs(d_weight)){
                 if (d_height<0){
-                    dplct = 0;
+                    dplct = north;
                 }
                 if (d_height>0){
-                    dplct = 2;
+                    dplct = south;
                 }
             }
             else{
                 if (d_weight<0){
-                    dplct = 1;
+                    dplct = west;
                 }
                 if (d_weight>0){
-                    dplct = 3;
+                    dplct = east;
                 }
             }
+            printf("s:%d\n", dplct);
         }
         move_one_gost(g, dplct);
     }
 }
 
 void move_one_gost(int g, int dplct){
+    int i = gosts_pos[g][0];
+    int j = gosts_pos[g][1];
     switch (dplct)
     {
-        case 0:
+        case east:
             if (gosts_pos[g][1] != 1){ //If the gost do not get out the maze
-                gosts_pos[g][1] ++;
+                maze[gosts_pos[g][0]][gosts_pos[g][1]] = gosts_last_case[g];
+                gosts_pos[g][1] --;
+                gosts_last_case[g] = maze[gosts_pos[g][0]][gosts_pos[g][1]]; 
+                maze[gosts_pos[g][0]][gosts_pos[g][1]] = 'g';
             }
             break;
         
-        case 1:
+        case north:
             if (gosts_pos[g][0] != 1){ //If the gost do not get out the maze
-                gosts_pos[g][0] ++;
-            }
-            break;
-
-        case 2:
-            if (gosts_pos[g][1] != rows-2){ //If the gost do not get out the maze
-                gosts_pos[g][1] --;
-            }
-            break;
-
-        case 3:
-            if (gosts_pos[g][0] != cols-2){ //If the gost do not get out the maze
+                maze[gosts_pos[g][0]][gosts_pos[g][1]] = gosts_last_case[g];
                 gosts_pos[g][0] --;
+                gosts_last_case[g] = maze[gosts_pos[g][0]][gosts_pos[g][1]]; 
+                maze[gosts_pos[g][0]][gosts_pos[g][1]] = 'g';
+            }
+            break;
+
+        case west:
+            if (gosts_pos[g][1] != cols-2){ //If the gost do not get out the maze
+                maze[gosts_pos[g][0]][gosts_pos[g][1]] = gosts_last_case[g];
+                gosts_pos[g][1] ++;
+                gosts_last_case[g] = maze[gosts_pos[g][0]][gosts_pos[g][1]]; 
+                maze[gosts_pos[g][0]][gosts_pos[g][1]] = 'g';
+            }
+            break;
+
+        case south:
+            if (gosts_pos[g][0] != rows-2){ //If the gost do not get out the maze
+                maze[gosts_pos[g][0]][gosts_pos[g][1]] = gosts_last_case[g];
+                gosts_pos[g][0] ++;
+                gosts_last_case[g] = maze[gosts_pos[g][0]][gosts_pos[g][1]]; 
+                maze[gosts_pos[g][0]][gosts_pos[g][1]] = 'g';
             }
             break;
         default:
