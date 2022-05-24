@@ -20,7 +20,7 @@ int calculate_new_state(int a, int* n_state);
 
 void min(int*t, int n, int* val_min, int* ind_min);
 
-float max_a(int s_prime, int a);
+float max_a(int s_prime);
 
 int calc_state(int* s);
 
