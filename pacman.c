@@ -27,9 +27,10 @@ void initialize_state(){
 
 void afficher_Q(){
     for(int i=0; i<NB_STATES; i++){
+        printf("%d  ", i);
         for (int j=0; j<NB_ACTIONS; j++){
-            printf("%f ", Q[i][j]);
-        }
+            printf("%f\t", Q[i][j]);
+        }printf("\n");
     }
     printf("\n");
 }
@@ -59,34 +60,25 @@ int calculate_new_state(int a, int* n_state){
     int i = current_row;
     int j = current_col;
     int out = 0;
-    printf("%d %d %d\n", a, i, j);
     switch (a)
     {
     case west:
-        if ((j=!1) && (maze[i][j-1] == ' ')){
-            out = new_state(i, j-1, n_state);
-        }
+        out = new_state(i, j-1, n_state);
     break;
         
     case north:
-        if ((i=!1) && (maze[i-1][j] == ' ')){
-            out = new_state(i-1, j, n_state);
-            }
-            break;
+        out = new_state(i-1, j, n_state);
+    break;
 
-        case east:
-            if ((j=! (cols-2)) && (maze[i][j+1] == ' ')){
-                out = new_state(i, j+1, n_state);
-            }
-            break;
+    case east:
+        out = new_state(i, j+1, n_state);
+    break;
 
-        case south:
-            if ((i=!(rows-2)) && (maze[i+1][j] == ' ')){
-                out = new_state(i+1, j, n_state);
-            }
-            break;
-        default:
-            break;
+    case south:
+        out = new_state(i+1, j, n_state);
+    break;
+    default:
+        break;
     }
     return out;
 }
@@ -136,27 +128,25 @@ int new_state(int i, int j, int* n_state){
         k++;
     }
     if(j+k==cols){
-        n_state[5+west] = false;
-    }else{
-        n_state[5+west] = true;
-    }
-    k=0;
-    while((i-k>=0)&&(maze[i][j-k]!='g')){
-        k++;
-    }
-    if(i-k==-1){
         n_state[5+east] = false;
     }else{
         n_state[5+east] = true;
     }
-    n_state[9] = is_trapped(state);
-    for(int k=0; k<10; k++){
+    k=0;
+    while((j-k>=0)&&(maze[i][j-k]!='g')){
+        k++;
     }
+    if(j-k==-1){
+        n_state[5+west] = false;
+    }else{
+        //n_state[5+west] = true;
+    }
+    n_state[9] = is_trapped(state);
     return calc_state(n_state);
 }
 
 int calc_state(int* s){
-    return 2*(s[0]+ 2*(s[1]+ 2*(s[2]+ 2*(s[3]+ 4*(s[4]+ 2*(s[5]+ 2*(s[6]+ 2*(s[8]+ 2*(s[9]+ 2*s[7])))))))));
+    return s[0]+ 2*(s[1]+ 2*(s[2]+ 2*(s[3]+ 4*(s[4]+ 2*(s[5]+ 2*(s[6]+ 2*(s[8]+ 2*(s[9]+ 2*s[7]))))))));
 }
 
 void min(int*t, int n, int* val_min, int* ind_min){
@@ -326,15 +316,20 @@ int next_step(){
     if (nb_life==0){
         return -1;
     }
+    if((next_row<=0)||(next_row>=rows-1)){
+        next_row = current_row;
+    }
+    if ((next_col<=0)||(next_col)>=cols-1){
+        next_col = current_col;
+    }
     maze[current_row][current_col] = ' ';
-    int s_prime = calculate_new_state(a, state);
-    Q[s][a] += alpha*(reward + gamma*(max_a(s_prime, a)-Q[s][a]));
     current_col = next_col;
     current_row = next_row;
+    int s_prime = new_state(next_row, next_col, state);
+    Q[s][a] += alpha*(reward + gamma*(max_a(s_prime, a)-Q[s][a]));
     maze[current_row][current_col]= 'p';
     move_gosts();
     s = s_prime;
-    printf("\n");
     return 0;
 }
 
