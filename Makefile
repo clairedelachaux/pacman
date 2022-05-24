@@ -3,7 +3,7 @@ prog2 : main.o pacman.o env.o
 
 
 env.o : env.c env.h
-	gcc -c env.c
+	gcc -c -Wall -Werror -Wfatal-errors env.c
 
 pacman.o : pacman.c pacman.h
 	gcc -c -Wall -Werror -Wfatal-errors pacman.c
