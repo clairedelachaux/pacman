@@ -174,7 +174,7 @@ void min(int*t, int n, int* val_min, int* ind_min){
     }
 }
 
-float max_a(int s_prime, int a){
+float max_a(int s_prime){
     float M = Q[s_prime][0];
     for (int k=1; k<4; k++){
         if(Q[s_prime][k]>M){
