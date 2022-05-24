@@ -290,6 +290,7 @@ int next_step(){
         break;
     }
     int reward = 0;
+    int s_prime = calculate_new_state(a, state);
     switch (maze[next_row][next_col])
     {
     case 'g':
@@ -322,15 +323,17 @@ int next_step(){
         break;
 
     }
+    if(is_trapped(
     if (nb_food==0){
         return 1;
     }
     if (nb_life==0){
         return -1;
     }
+    if(is_trapped(s_prime){
+        reward = -50;
+    }
     maze[current_row][current_col] = ' ';
-    int s_prime = calculate_new_state(a, state);
-    printf("%d%d", s, s_prime);
     Q[s][a] += alpha*(reward + gamma*(max_a(s_prime, a)-Q[s][a]));
     current_col = next_col;
     current_row = next_row;
