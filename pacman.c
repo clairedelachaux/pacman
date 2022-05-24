@@ -58,33 +58,32 @@ int eps_greedy(int s){
 int calculate_new_state(int a, int* n_state){
     int i = current_row;
     int j = current_col;
-    int out;
-    printf("%d", a);
+    int out = 0;
+    printf("%d %d %d\n", a, i, j);
     switch (a)
     {
     case west:
         if ((j=!1) && (maze[i][j-1] == ' ')){
             out = new_state(i, j-1, n_state);
-        }else{out = new_state(i, j, n_state);}
+        }
     break;
         
     case north:
         if ((i=!1) && (maze[i-1][j] == ' ')){
             out = new_state(i-1, j, n_state);
-            }else{out = new_state(i, j, n_state);}
+            }
             break;
 
         case east:
             if ((j=! (cols-2)) && (maze[i][j+1] == ' ')){
                 out = new_state(i, j+1, n_state);
             }
-            else{out = new_state(i, j, n_state);}
             break;
 
         case south:
             if ((i=!(rows-2)) && (maze[i+1][j] == ' ')){
                 out = new_state(i+1, j, n_state);
-            }else{out = new_state(i, j, n_state);}
+            }
             break;
         default:
             break;
@@ -150,9 +149,8 @@ int new_state(int i, int j, int* n_state){
     }else{
         n_state[5+east] = true;
     }
-    n_state[10] = is_trapped(state);
+    n_state[9] = is_trapped(state);
     for(int k=0; k<10; k++){
-        printf("%d- ", n_state[k]);
     }
     return calc_state(n_state);
 }
@@ -174,7 +172,7 @@ void min(int*t, int n, int* val_min, int* ind_min){
     }
 }
 
-float max_a(int s_prime){
+float max_a(int s_prime, int a){
     float M = Q[s_prime][0];
     for (int k=1; k<4; k++){
         if(Q[s_prime][k]>M){
@@ -290,7 +288,6 @@ int next_step(){
         break;
     }
     int reward = 0;
-    int s_prime = calculate_new_state(a, state);
     switch (maze[next_row][next_col])
     {
     case 'g':
@@ -323,17 +320,14 @@ int next_step(){
         break;
 
     }
-    if(is_trapped(
     if (nb_food==0){
         return 1;
     }
     if (nb_life==0){
         return -1;
     }
-    if(is_trapped(s_prime){
-        reward = -50;
-    }
     maze[current_row][current_col] = ' ';
+    int s_prime = calculate_new_state(a, state);
     Q[s][a] += alpha*(reward + gamma*(max_a(s_prime, a)-Q[s][a]));
     current_col = next_col;
     current_row = next_row;
